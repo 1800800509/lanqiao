@@ -18,12 +18,14 @@ public class AI extends MIDlet
 	public void pauseApp(){
 	}
 }
-class MainCanvas extends Canvas
+class MainCanvas extends Canvas implements Runnable
 {
-	int x,y;
+	Thread thread;
+	int heroX,heroY,bossX,bossY;
 	int leftFlag,rightFlag,upFlag,downFlag;
 	Image heroImg[][]=new Image[4][3];
 	Image currentImg;//定义变量
+	Image bossImg;
 	public MainCanvas(){
 	try
 		{
@@ -34,26 +36,54 @@ class MainCanvas extends Canvas
 				   heroImg[i][j]=Image.createImage("/sayo"+i+j+".png");
 			   }
            }
-            
+            bossImg=Image.createImage("/zuzu000.png");
 			currentImg=heroImg[3][1];
-			x=120;
-			y=100;
+			heroX=120;
+			heroY=100;
+
+			bossX=0;
+			bossY=0;
 			leftFlag=1;
 			rightFlag=1;
             upFlag=1;
             downFlag=1;
-
+            thread=new Thread(this);
+			thread.start();
 	}
 	catch (IOException e)
 		{
 	       e.printStackTrace();
 	}
    }
+   public void run(){
+		while(true){
+			try
+			{
+				Thread.sleep(200);//FPS：屏幕刷新率
+			}
+			catch(InterruptedException e){
+				e.printStackTrace();
+			}
+			if(bossX<heroX){
+				bossX++;
+			}
+			else{
+				bossX--;
+			}
+
+			if(bossY<heroY){
+				bossY++;
+			}else{
+				bossY--;
+			}
+			repaint();
+		}
+	}
 	public void paint(Graphics g){
 		g.setColor(154,255,154);
 		g.fillRect(0,0,getWidth(),getHeight());
-		g.drawImage(currentImg,x,y,0);/*120:x坐标、100：y坐标*/
-	
+		g.drawImage(currentImg,heroX,heroY,0);/*120:x坐标、100：y坐标*/
+	    g.drawImage(bossImg,bossX,bossY,0);
 }
 public void keyPressed(int keyCode){
     int action=getGameAction(keyCode);
@@ -66,7 +96,7 @@ public void keyPressed(int keyCode){
 	    currentImg=heroImg[0][2];
 	    leftFlag=1;
 	  } 
-	x=x-3;
+	heroX=heroX-3;
 	}
 	if(action==RIGHT){
 	if(rightFlag==1){
@@ -77,7 +107,7 @@ public void keyPressed(int keyCode){
 	    currentImg=heroImg[1][2];
 	    rightFlag=1;
 	  } 
-	x=x+3;
+	heroX=heroX+3;
 	}
 	if(action==UP){
 	if(upFlag==1){
@@ -88,7 +118,7 @@ public void keyPressed(int keyCode){
 	    currentImg=heroImg[2][2];
 	    upFlag=1;
 	  } 
-	y=y-3;
+	heroY=heroY-3;
     }
     if(action==DOWN){
 	if(downFlag==1){
@@ -99,8 +129,7 @@ public void keyPressed(int keyCode){
 	    currentImg=heroImg[3][2];
 	    downFlag=1;
 	  } 
-	y=y+3;
+	heroY=heroY+3;
 	}
-	repaint();
 }
 }
